@@ -36,35 +36,27 @@ public class AIController {
         String message = """
                 List of 5 most popular personalities in {sports}
                 along with their career achievements.
+                Show the details in proper readable format.""";
 
-                Show the details in proper readable format.
-                """;
         PromptTemplate template = new PromptTemplate(message);
-        String prompt = template.render(Map.of(
-                "sports", sports
-        ));
+        String prompt = template.render(Map.of("sports", sports));
 
         String response = this.chatClient.prompt()
                 .user(prompt)
                 .call()
                 .content();
-
         return response;
     }
 
 
     @GetMapping("/sports-v2")
-    public String findPopularSportsPersonTwo(
-            @RequestParam String sports
-    ) {
+    public String findPopularSportsPersonTwo(@RequestParam String sports) {
 
         var userMessage = new UserMessage(
                 String.format("""
                         List of 5 most popular personalities in %s
                         along with their Career Achievements.
-
-                        Show the details in proper Readable format.
-                        """, sports)
+                        Show the details in proper Readable format.""", sports)
         );
         Prompt prompt = new Prompt(userMessage);
 
