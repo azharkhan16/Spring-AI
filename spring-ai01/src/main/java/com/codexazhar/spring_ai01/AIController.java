@@ -1,6 +1,8 @@
 package com.codexazhar.spring_ai01;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,8 +30,8 @@ public class AIController {
         return response;
     }
 
-    @GetMapping("/sports-personality")
-    public String findPopularSportsPerson(@RequestParam String sports) {
+    @GetMapping("/sports-v1")
+    public String findPopularSportsPersonOne(@RequestParam String sports) {
 
         String message = """
                 List of 5 most popular personalities in {sports}
@@ -48,5 +50,26 @@ public class AIController {
                 .content();
 
         return response;
+    }
+
+
+    @GetMapping("/sports-v2")
+    public String findPopularSportsPersonTwo(
+            @RequestParam String sports
+    ) {
+
+        var userMessage = new UserMessage(
+                String.format("""
+                        List of 5 most popular personalities in %s
+                        along with their Career Achievements.
+
+                        Show the details in proper Readable format.
+                        """, sports)
+        );
+        Prompt prompt = new Prompt(userMessage);
+
+        return this.chatClient.prompt(prompt)
+                .call()
+                .content();
     }
 }
