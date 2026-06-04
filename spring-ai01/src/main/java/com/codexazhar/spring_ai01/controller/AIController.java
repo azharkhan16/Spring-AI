@@ -1,10 +1,13 @@
-package com.codexazhar.spring_ai01;
+package com.codexazhar.spring_ai01.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.converter.ListOutputConverter;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,5 +73,37 @@ public class AIController {
         return this.chatClient.prompt(prompt)
                 .call()
                 .content();
+    }
+
+
+    @GetMapping("/sports-v3")
+    public List<String> findPopularPlayers(@RequestParam String sports) {
+
+        ListOutputConverter converter = new ListOutputConverter(new DefaultConversionService());
+
+        String message = """
+                List of 5 most popular personalities in {sports}.
+                {format}""";
+
+        PromptTemplate template = new PromptTemplate(message);
+        Prompt prompt = template.create(
+                Map.of(
+                        "sports", sports,
+                        "format", converter.getFormat()
+                )
+        );
+
+        String response = this.chatClient.prompt(prompt)
+                .call()
+                .content();
+        return converter.convert(response);
+    }
+
+    @GetMapping("/chat")
+    public ResponseEntity<String> chat(@RequestParam(value = "msg", required = true) String msg) {
+
+        var chatResponse = chatClient.prompt(msg).call().content();
+//                System.out.println(response);
+        return ResponseEntity.ok(chatResponse);
     }
 }
